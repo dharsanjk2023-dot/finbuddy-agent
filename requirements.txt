@@ -1,0 +1,10 @@
+langgraph>=1.0
+langgraph-checkpoint-sqlite>=3.0
+langchain>=1.0
+langchain-anthropic>=1.0
+python-dotenv>=1.0
+# Only needed for make_diagram.py:
+matplotlib>=3.8
+# Free Gemini route (see .env.example):
+langchain-google-genai>=3.0
+# Optional: langchain-openai
