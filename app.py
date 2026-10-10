@@ -7,6 +7,7 @@ Each browser session gets its own private user id, so visitors never see each ot
 """
 
 import os
+import traceback
 import uuid
 
 import streamlit as st
@@ -95,8 +96,13 @@ def run(call) -> None:
         with st.spinner("FinBuddy is thinking..."):
             record(call())
     except Exception as exc:
+        traceback.print_exc()  # full details go to the server log (Manage app > Logs)
         st.session_state.pending = None
-        st.session_state.chat.append({"role": "assistant", "text": friendly_error(exc), "tools": []})
+        # Last lines of the traceback, shown in an expander so problems can be diagnosed.
+        detail = "".join(traceback.format_exception(exc)[-4:])[-1500:]
+        st.session_state.chat.append(
+            {"role": "assistant", "text": friendly_error(exc), "tools": [], "detail": detail}
+        )
 
 
 # ---------- start session ----------
@@ -163,6 +169,9 @@ for item in st.session_state.chat:
         st.markdown(item["text"])
         if item.get("tools"):
             st.caption("🔧 Tools used: " + " → ".join(item["tools"]))
+        if item.get("detail"):
+            with st.expander("Technical details (for debugging)"):
+                st.code(item["detail"])
 
 prompt = st.chat_input(
     "Type a message...", disabled=st.session_state.pending is not None
